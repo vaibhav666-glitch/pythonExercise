@@ -1,16 +1,14 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
 
-# Create the SQLAlchemy Engine
 engine = create_engine(
     settings.database_url,
-    echo=False,          # Set True to print SQL queries in the terminal
-    future=True
+    echo=True,          # False in production
+    pool_pre_ping=True,
 )
 
-# Session Factory
 SessionLocal = sessionmaker(
     bind=engine,
     autoflush=False,
@@ -18,17 +16,15 @@ SessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 
-# Base class for all ORM models
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    """
+    Base class for all ORM models.
+    """
+    pass
 
 
 def get_db():
-    """
-    Dependency that provides a database session.
-
-    A new session is created for every request and
-    automatically closed after the request finishes.
-    """
     db = SessionLocal()
 
     try:
